@@ -77,3 +77,46 @@ class PasswordChangeAPIView(generics.CreateAPIView):
             return Response({"message " : "password change successfully"} , status=status.HTTP_201_CREATED)
         else: 
             return Response({"message " : "User Does not exists"} , status=status.HTTP_404_NOT_FOUND)
+
+
+
+from rest_framework import generics, permissions
+from Transport.models import Transport
+from api.serializer import TransportSerializer
+
+class TransportListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Transport.objects.all()
+    serializer_class = TransportSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
+
+    def get_queryset(self):
+        queryset = Transport.objects.all()
+        params = self.request.query_params
+
+        origin = params.get('origin')
+        destination = params.get('destination')
+        date = params.get('date')  # expected format: YYYY-MM-DD
+        min_price = params.get('min_price')
+        max_price = params.get('max_price')
+
+        if origin:
+            queryset = queryset.filter(origin__icontains=origin)
+        if destination:
+            queryset = queryset.filter(destination__icontains=destination)
+        if date:
+            queryset = queryset.filter(departure_time__date=date)
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+
+        return queryset.order_by('departure_time')
+    
+    #http://127.0.0.1:8000/api/v1/transport/?origin=Iran&destination=germany
+    #http://127.0.0.1:8000/api/v1/transport/?date=2025-07-01
+    #http://127.0.0.1:8000/api/v1/transport/?min_price=200000&max_price=1000000
+    #http://127.0.0.1:8000/api/v1/transport/?origin=Iran&destination=Germany&date=2025-07-05&min_price=300000&max_price=800000

@@ -50,3 +50,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
+
+
+
+from Transport.models import Transport
+from rest_framework import serializers
+class TransportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transport
+        fields = '__all__'
