@@ -16,3 +16,4 @@ class Transport(models.Model):
 
     def __str__(self):
         return f"{self.transport_type} | {self.origin} → {self.destination} | {self.departure_time.strftime('%Y-%m-%d %H:%M')}"
+
