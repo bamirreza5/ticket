@@ -59,3 +59,25 @@ class TransportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transport
         fields = '__all__'
+
+
+
+from booking.models import Booking
+
+class BookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = '__all__'
+        read_only_fields = ['user', 'booking_date']
+
+    def validate(self, data):
+        #prevent repetative booking
+        if Booking.objects.filter(transport=data['transport'], seat_number=data['seat_number']).exists():
+            raise serializers.ValidationError("این صندلی قبلاً رزرو شده است.")
+        return data
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        #set token
+        validated_data['user'] = request.user
+        return super().create(validated_data)

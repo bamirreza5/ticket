@@ -120,3 +120,31 @@ class TransportListCreateAPIView(generics.ListCreateAPIView):
     #http://127.0.0.1:8000/api/v1/transport/?date=2025-07-01
     #http://127.0.0.1:8000/api/v1/transport/?min_price=200000&max_price=1000000
     #http://127.0.0.1:8000/api/v1/transport/?origin=Iran&destination=Germany&date=2025-07-05&min_price=300000&max_price=800000
+
+from api.serializer import BookingSerializer
+from booking.models import Booking
+
+class BookTicketAPIView(generics.CreateAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+class MyBookingsAPIView(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Booking.objects.filter(user=self.request.user)
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+
+class CancelBookingAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, booking_id):
+        booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+        booking.delete()
+        return Response({"message": "رزرو با موفقیت لغو شد."}, status=status.HTTP_200_OK)
+
