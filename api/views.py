@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.shortcuts import render
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = api_serializer.MyTokenObtainPairSerializer
@@ -148,3 +150,5 @@ class CancelBookingAPIView(APIView):
         booking.delete()
         return Response({"message": "رزرو با موفقیت لغو شد."}, status=status.HTTP_200_OK)
 
+def login_page(request):
+    return render(request, 'login.html')

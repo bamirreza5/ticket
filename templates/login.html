@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ورود</title>
+</head>
+<body>
+  <h2>ورود</h2>
+  <form id="loginForm">
+    <label>ایمیل:</label>
+    <input type="text" name="email" required><br>
+    <label>رمز عبور:</label>
+    <input type="password" name="password" required><br>
+    <button type="submit">ورود</button>
+  </form>
+
+  <p id="response"></p>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = {
+        email: form.email.value,
+        password: form.password.value
+      };
+
+      fetch('/api/v1/user/token/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.access) {
+          document.getElementById('response').innerText = 'توکن شما: ' + data.access;
+        } else {
+          document.getElementById('response').innerText = 'ورود ناموفق';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
