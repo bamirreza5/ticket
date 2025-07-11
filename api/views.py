@@ -42,24 +42,25 @@ class PasswordRestEmailVerifyAPIView(generics.RetrieveAPIView):
              user.save()
              link = f"http://127.0.0.1:8000/create-new-password/?otp={user.otp}&uuidb64={uuidb64}&=refresh_token{refresh_token}"
              
-             context = {
-                 "link" : link,
-                 "username" : user.username,
-             }
-             subject = "Password Rest Email"
-             text_body = render_to_string("email/password_reset.txt" , context)
-             html_body = render_to_string("email/password_reset.html" , context)             
-             msg = EmailMultiAlternatives(
-                subject=subject,
-                from_email=settings.FROM_EMAIL,
-                to=[user.email],
-                body=text_body
-            )
-             msg.attach_alternative(html_body , "text/html")
-             msg.send()
+            #  context = { 
+            #      "link" : link,
+            #      "username" : user.username,
+            #  }
+            #  subject = "Password Rest Email"
+            #  text_body = render_to_string("email/password_reset.txt" , context)
+            #  html_body = render_to_string("email/password_reset.html" , context)             
+            #  msg = EmailMultiAlternatives(
+            #     subject=subject,
+            #     from_email=settings.FROM_EMAIL,
+            #     to=[user.email],
+            #     body=text_body
+            # )
+            #  msg.attach_alternative(html_body , "text/html")
+            #  msg.send()
              
              print("link ======== " , link)
         return user
+
     
 class PasswordChangeAPIView(generics.CreateAPIView):
     Permission_classes = [AllowAny]
