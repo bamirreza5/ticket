@@ -141,7 +141,6 @@ STATIC_ROOT = BASE_DIR / 'templates'
 
 AUTH_USER_MODEL =  'userauths.User'
 
-MAILGUN_SECRET_KEY = env("MAILGUN_SECRET_KEY")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -149,5 +148,22 @@ MAILGUN_SECRET_KEY = env("MAILGUN_SECRET_KEY")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    #add this code for pagination
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5
 }
+
+# #add send email
+# from decouple import config
+
+# SECRET_KEY = config('SECRET_KEY')
+# DEBUG = config('DEBUG', cast=bool)
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
+
+# EMAIL_HOST = 'smtp.nettic.ir'  
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+# FROM_EMAIL = config('FROM_EMAIL')
