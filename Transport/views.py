@@ -2,6 +2,7 @@ from rest_framework import generics, permissions, filters
 from .models import Transport
 from .serializer import TransportSerializer
 
+
 class TransportListCreateView(generics.ListCreateAPIView):
     queryset = Transport.objects.all()
     serializer_class = TransportSerializer
