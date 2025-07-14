@@ -2,6 +2,13 @@ from rest_framework import serializers
 from userauths.models import Profile,User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
+from datetime import datetime
+from booking.models import Booking
+from Transport.models import Transport
+from django.utils import timezone
+
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -60,10 +67,6 @@ class TransportSerializer(serializers.ModelSerializer):
         model = Transport
         fields = '__all__'
 
-
-
-from booking.models import Booking
-
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
@@ -71,13 +74,19 @@ class BookingSerializer(serializers.ModelSerializer):
         read_only_fields = ['user', 'booking_date']
 
     def validate(self, data):
-        #prevent repetative booking
-        if Booking.objects.filter(transport=data['transport'], seat_number=data['seat_number']).exists():
-            raise serializers.ValidationError("این صندلی قبلاً رزرو شده است.")
+        if not data.get('seat_number'):
+            raise serializers.ValidationError({"seat_number": "شماره صندلی الزامی است."})
+
+        if data['transport'].departure_time < timezone.now():
+            raise serializers.ValidationError({"transport": "امکان رزرو سفرهای گذشته وجود ندارد."})
+
+        if not self.instance:
+            if Booking.objects.filter(transport=data['transport'], seat_number=data['seat_number']).exists():
+                raise serializers.ValidationError({"seat_number": "این صندلی قبلاً رزرو شده است."})
+
         return data
 
     def create(self, validated_data):
         request = self.context.get('request')
-        #set token
         validated_data['user'] = request.user
         return super().create(validated_data)
