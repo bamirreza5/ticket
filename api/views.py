@@ -16,6 +16,8 @@ from rest_framework import generics, permissions
 from Transport.models import Transport
 from api.serializer import TransportSerializer
 
+from booking.models import Booking
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = api_serializer.MyTokenObtainPairSerializer
     permission_classes = [AllowAny]
@@ -147,3 +149,28 @@ class CancelBookingAPIView(APIView):
         booking.delete()
         return Response({"message": "رزرو با موفقیت لغو شد."}, status=status.HTTP_200_OK)
     
+
+
+
+class SeatAvailabilityAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, transport_id):
+        transport = get_object_or_404(Transport, id=transport_id)
+        total_seats = transport.total_seats
+
+        booked_seats = Booking.objects.filter(transport_id=transport.id).values_list('seat_number', flat=True)
+        booked_seats = set(map(int, booked_seats))
+
+        seat_map = [
+            {
+                "seat_number": i,
+                "is_booked": i in booked_seats
+            } for i in range(1, total_seats + 1)
+        ]
+
+        return Response({
+            "transport_id": transport.id,
+            "total_seats": total_seats,
+            "seats": seat_map
+        })

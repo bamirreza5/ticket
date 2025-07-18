@@ -13,5 +13,6 @@ urlpatterns = [
     path("bookings/", api_views.BookTicketAPIView.as_view(), name="book-ticket"),
     path("my-bookings/", api_views.MyBookingsAPIView.as_view(), name="my-bookings"),
     path("cancel-booking/<int:booking_id>/", api_views.CancelBookingAPIView.as_view(), name="cancel-booking"),
-    path('api-auth/', include('rest_framework.urls')),  # ← این خط لازمه
+    path('api-auth/', include('rest_framework.urls')),
+    path("transport/<int:transport_id>/seats/", api_views.SeatAvailabilityAPIView.as_view(), name="seat-availability"),
 ]
