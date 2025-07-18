@@ -1,0 +1,23 @@
+<!-- templates/booking_form.html -->
+<h2>فرم رزرو بلیت</h2>
+
+{% if success %}
+<p style="color:green;">رزرو با موفقیت انجام شد!</p>
+{% elif error %}
+<p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <label>شماره صندلی:</label>
+  <input type="text" name="seat" required><br>
+
+  <label>انتخاب وسیله نقلیه:</label>
+  <select name="transport">
+    {% for t in transports %}
+      <option value="{{ t.id }}">{{ t.transport_type }} - {{ t.origin }} → {{ t.destination }} ({{ t.departure_time }})</option>
+    {% endfor %}
+  </select><br>
+
+  <button type="submit">رزرو</button>
+</form>

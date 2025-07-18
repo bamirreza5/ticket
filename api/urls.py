@@ -12,5 +12,4 @@ urlpatterns = [
     path("bookings/", api_views.BookTicketAPIView.as_view(), name="book-ticket"),
     path("my-bookings/", api_views.MyBookingsAPIView.as_view(), name="my-bookings"),
     path("cancel-booking/<int:booking_id>/", api_views.CancelBookingAPIView.as_view(), name="cancel-booking"),
-    path('login/', api_views.login_page, name='login-page'),
 ]

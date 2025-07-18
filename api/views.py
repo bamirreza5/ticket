@@ -10,10 +10,16 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.shortcuts import render
-
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions
+from Transport.models import Transport
+from api.serializer import TransportSerializer
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = api_serializer.MyTokenObtainPairSerializer
+    permission_classes = [AllowAny]
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -61,7 +67,6 @@ class PasswordRestEmailVerifyAPIView(generics.RetrieveAPIView):
              print("link ======== " , link)
         return user
 
-    
 class PasswordChangeAPIView(generics.CreateAPIView):
     Permission_classes = [AllowAny]
     serializer_class = api_serializer.UserSerializer
@@ -80,12 +85,6 @@ class PasswordChangeAPIView(generics.CreateAPIView):
             return Response({"message " : "password change successfully"} , status=status.HTTP_201_CREATED)
         else: 
             return Response({"message " : "User Does not exists"} , status=status.HTTP_404_NOT_FOUND)
-
-
-
-from rest_framework import generics, permissions
-from Transport.models import Transport
-from api.serializer import TransportSerializer
 
 class TransportListCreateAPIView(generics.ListCreateAPIView):
     queryset = Transport.objects.all()
@@ -137,11 +136,8 @@ class BookTicketAPIView(generics.CreateAPIView):
 class MyBookingsAPIView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
-
     def get_queryset(self):
         return Booking.objects.filter(user=self.request.user)
-from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
 
 class CancelBookingAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
