@@ -7,6 +7,12 @@ from booking.models import Booking
 from Transport.models import Transport
 from django.utils import timezone
 
+from Transport.models import Transport
+from rest_framework import serializers
+
+from rest_framework import serializers
+from booking.models import Booking
+from Transport.models import Transport
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -60,12 +66,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 
-from Transport.models import Transport
-from rest_framework import serializers
 class TransportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transport
         fields = '__all__'
+
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,19 +79,29 @@ class BookingSerializer(serializers.ModelSerializer):
         read_only_fields = ['user', 'booking_date']
 
     def validate(self, data):
-        if not data.get('seat_number'):
+        request = self.context.get('request')
+        user = request.user if request else None
+
+        seat_number = data.get('seat_number')
+        transport = data.get('transport')
+
+        if not seat_number:
             raise serializers.ValidationError({"seat_number": "شماره صندلی الزامی است."})
 
-        if data['transport'].departure_time < timezone.now():
+        if transport.departure_time < timezone.now():
             raise serializers.ValidationError({"transport": "امکان رزرو سفرهای گذشته وجود ندارد."})
 
-        if not self.instance:
-            if Booking.objects.filter(transport=data['transport'], seat_number=data['seat_number']).exists():
+        if int(seat_number) > int(transport.total_seats):
+            raise serializers.ValidationError({"seat_number": f"حداکثر شماره صندلی {transport.total_seats} است."})
+
+        if not self.instance or (
+            self.instance.transport != transport or self.instance.seat_number != seat_number
+        ):
+            if Booking.objects.filter(transport=transport, seat_number=seat_number).exists():
                 raise serializers.ValidationError({"seat_number": "این صندلی قبلاً رزرو شده است."})
 
         return data
 
     def create(self, validated_data):
-        request = self.context.get('request')
-        validated_data['user'] = request.user
+        validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
