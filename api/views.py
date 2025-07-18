@@ -174,3 +174,27 @@ class SeatAvailabilityAPIView(APIView):
             "total_seats": total_seats,
             "seats": seat_map
         })
+
+
+
+from payment.models import Payment
+
+class BookTicketAPIView(generics.CreateAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        booking = serializer.save(user=self.request.user)
+
+        # استخراج مبلغ از مدل Transport
+        amount = booking.transport.price
+
+        # ایجاد پرداخت پس از رزرو
+        Payment.objects.create(
+            user=self.request.user,
+            booking=booking,
+            amount=amount,
+            method='card',  # فرضی؛ اگر از فرم بخوای بگیری باید تغییر کنه
+            status='completed'
+        )

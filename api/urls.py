@@ -15,4 +15,5 @@ urlpatterns = [
     path("cancel-booking/<int:booking_id>/", api_views.CancelBookingAPIView.as_view(), name="cancel-booking"),
     path('api-auth/', include('rest_framework.urls')),
     path("transport/<int:transport_id>/seats/", api_views.SeatAvailabilityAPIView.as_view(), name="seat-availability"),
+    path('payments/', include('payment.urls')),
 ]
