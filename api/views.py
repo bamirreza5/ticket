@@ -146,11 +146,9 @@ class CancelBookingAPIView(APIView):
 
     def post(self, request, booking_id):
         booking = get_object_or_404(Booking, id=booking_id, user=request.user)
-        booking.delete()
+        booking.is_cancelled = True
+        booking.save()
         return Response({"message": "رزرو با موفقیت لغو شد."}, status=status.HTTP_200_OK)
-    
-
-
 
 class SeatAvailabilityAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -159,7 +157,10 @@ class SeatAvailabilityAPIView(APIView):
         transport = get_object_or_404(Transport, id=transport_id)
         total_seats = transport.total_seats
 
-        booked_seats = Booking.objects.filter(transport_id=transport.id).values_list('seat_number', flat=True)
+        booked_seats = Booking.objects.filter(
+            transport=transport,
+            is_cancelled=False
+        ).values_list('seat_number', flat=True)
         booked_seats = set(map(int, booked_seats))
 
         seat_map = [
