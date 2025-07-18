@@ -146,6 +146,3 @@ class CancelBookingAPIView(APIView):
         booking = get_object_or_404(Booking, id=booking_id, user=request.user)
         booking.delete()
         return Response({"message": "رزرو با موفقیت لغو شد."}, status=status.HTTP_200_OK)
-
-def login_page(request):
-    return render(request, 'login.html')

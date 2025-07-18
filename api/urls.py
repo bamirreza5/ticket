@@ -1,6 +1,7 @@
 from api import views as api_views
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
+from django.urls import path, include
 
 urlpatterns = [
     path("user/token/" , api_views.MyTokenObtainPairView.as_view()),
@@ -12,4 +13,5 @@ urlpatterns = [
     path("bookings/", api_views.BookTicketAPIView.as_view(), name="book-ticket"),
     path("my-bookings/", api_views.MyBookingsAPIView.as_view(), name="my-bookings"),
     path("cancel-booking/<int:booking_id>/", api_views.CancelBookingAPIView.as_view(), name="cancel-booking"),
+    path('api-auth/', include('rest_framework.urls')),  # ← این خط لازمه
 ]
