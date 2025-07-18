@@ -145,10 +145,47 @@ class CancelBookingAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, booking_id):
-        booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+        booking = get_object_or_404(Booking, id=booking_id)  # حذف شرط user
+
+        # تست دسترسی
+        if booking.user != request.user:
+            return Response({"detail": "شما مالک این رزرو نیستید."}, status=403)
+
         booking.is_cancelled = True
         booking.save()
         return Response({"message": "رزرو با موفقیت لغو شد."}, status=status.HTTP_200_OK)
+
+class CancelBookingBySeatAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        seat_number = request.data.get("seat_number")
+        transport_id = request.data.get("transport_id")
+
+        if not seat_number or not transport_id:
+            return Response({"error": "seat_number و transport_id الزامی هستند."}, status=400)
+
+        try:
+            booking = Booking.objects.get(
+                seat_number=seat_number,
+                transport_id=transport_id,
+                user=request.user,
+                is_cancelled=False
+            )
+        except Booking.DoesNotExist:
+            return Response({"detail": "رزروی با این مشخصات برای شما یافت نشد."}, status=404)
+
+        booking.is_cancelled = True
+        booking.save()
+
+        return Response({"message": "رزرو با موفقیت لغو شد."}, status=status.HTTP_200_OK)
+    
+    #example
+    #     {
+    #   "seat_number": 2,
+    #   "transport_id": 1
+    # }
+
 
 class SeatAvailabilityAPIView(APIView):
     permission_classes = [permissions.AllowAny]

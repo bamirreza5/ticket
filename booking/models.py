@@ -10,9 +10,7 @@ class Booking(models.Model):
     transport = models.ForeignKey(Transport, on_delete=models.CASCADE)
     seat_number = models.CharField(max_length=10)
     booking_date = models.DateTimeField(auto_now_add=True)
-    is_cancelled = models.BooleanField(default=False)
-
-
+    is_cancelled = models.BooleanField(default=False, editable=False)
     class Meta:
         unique_together = ('transport', 'seat_number')
 
