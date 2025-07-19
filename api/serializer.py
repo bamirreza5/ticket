@@ -97,10 +97,15 @@ class BookingSerializer(serializers.ModelSerializer):
         if not self.instance or (
             self.instance.transport != transport or self.instance.seat_number != seat_number
         ):
-            if Booking.objects.filter(transport=transport, seat_number=seat_number).exists():
+            if Booking.objects.filter(
+                transport=transport,
+                seat_number=seat_number,
+                is_cancelled=False  # 🟢 این خط جدید اضافه شده
+            ).exists():
                 raise serializers.ValidationError({"seat_number": "این صندلی قبلاً رزرو شده است."})
 
         return data
+
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user

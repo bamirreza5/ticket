@@ -12,7 +12,12 @@ class Booking(models.Model):
     booking_date = models.DateTimeField(auto_now_add=True)
     is_cancelled = models.BooleanField(default=False, editable=False)
     class Meta:
-        unique_together = ('transport', 'seat_number')
-
+        constraints = [
+            models.UniqueConstraint(
+                fields=['transport', 'seat_number'],
+                condition=models.Q(is_cancelled=False),
+                name='unique_active_booking'
+            )
+        ]
     def __str__(self):
         return f"{self.user.email} - {self.transport} - Seat {self.seat_number}"
