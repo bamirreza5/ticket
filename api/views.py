@@ -17,6 +17,8 @@ from Transport.models import Transport
 from api.serializer import TransportSerializer
 
 from booking.models import Booking
+from api.serializer import BookingSerializer
+from payment.models import Payment
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = api_serializer.MyTokenObtainPairSerializer
@@ -125,16 +127,7 @@ class TransportListCreateAPIView(generics.ListCreateAPIView):
     #http://127.0.0.1:8000/api/v1/transport/?min_price=200000&max_price=1000000
     #http://127.0.0.1:8000/api/v1/transport/?origin=Iran&destination=Germany&date=2025-07-05&min_price=300000&max_price=800000
 
-from api.serializer import BookingSerializer
-from booking.models import Booking
 
-class BookTicketAPIView(generics.CreateAPIView):
-    queryset = Booking.objects.all()
-    serializer_class = BookingSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 class MyBookingsAPIView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -214,9 +207,6 @@ class SeatAvailabilityAPIView(APIView):
         })
 
 
-
-from payment.models import Payment
-
 class BookTicketAPIView(generics.CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
@@ -225,14 +215,13 @@ class BookTicketAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         booking = serializer.save(user=self.request.user)
 
-        # استخراج مبلغ از مدل Transport
-        amount = booking.transport.price
+        amount = booking.transport.price  # مبلغ از سفر گرفته می‌شود
 
-        # ایجاد پرداخت پس از رزرو
+        # ایجاد پرداخت مرتبط با رزرو
         Payment.objects.create(
             user=self.request.user,
             booking=booking,
             amount=amount,
-            method='card',  # فرضی؛ اگر از فرم بخوای بگیری باید تغییر کنه
-            status='completed'
+            method='card',   # یا از داده ورودی بگیر
+            status='completed'  # یا وضعیت مناسب پرداخت
         )

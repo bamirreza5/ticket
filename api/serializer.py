@@ -13,7 +13,7 @@ from rest_framework import serializers
 from rest_framework import serializers
 from booking.models import Booking
 from Transport.models import Transport
-
+from payment.serializers import PaymentSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -77,6 +77,9 @@ class BookingSerializer(serializers.ModelSerializer):
         model = Booking
         fields = '__all__'
         read_only_fields = ['user', 'booking_date']
+    
+    payments = PaymentSerializer(many=True, read_only=True)
+    amount = serializers.SerializerMethodField()
 
     def validate(self, data):
         request = self.context.get('request')
@@ -110,3 +113,7 @@ class BookingSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+    
+    
+    def get_amount(self, obj):
+        return obj.transport.price
